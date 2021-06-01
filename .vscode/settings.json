@@ -1,15 +1,16 @@
 {
   "java.configuration.updateBuildConfiguration": "automatic",
   "files.exclude": {
-    "**/.classpath": true,
-    "**/.DS_Store": true,
-    "**/.factorypath": true,
     "**/.git": true,
-    "**/.hg": true,
-    "**/.project": true,
     "**/.svn": true,
-    "**/*~": true,
+    "**/.hg": true,
     "**/CVS": true,
-    "bin/": true
+    "**/.DS_Store": true,
+    "bin/": true,
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true,
+    "**/*~": true
   }
 }

@@ -42,7 +42,8 @@ public class Sensor extends SubsystemBase
     private final Cobra cobra;
     private final Ultrasonic sonic1;
     private final Ultrasonic sonic2;
-    private final AnalogInput sharp;
+    private final AnalogInput sharp1;
+    private final AnalogInput sharp2;
     private final AHRS gyro;
 
     /**
@@ -54,7 +55,8 @@ public class Sensor extends SubsystemBase
     .withProperties(Map.of("min", 0, "max", 300)).getEntry();
     private final NetworkTableEntry D_motorSpeed = tab.add("Motor Speed", 0).withWidget(BuiltInWidgets.kNumberSlider)
     .withProperties(Map.of("min", -1, "max", 1)).getEntry();
-    private final NetworkTableEntry D_sharpIR = tab.add("Sharp IR", 0).getEntry();
+    private final NetworkTableEntry D_sharpIR1 = tab.add("Sharp IR 1", 0).getEntry();
+    private final NetworkTableEntry D_sharpIR2 = tab.add("Sharp IR 2", 0).getEntry();
     private final NetworkTableEntry D_ultraSonic1 = tab.add("Ultrasonic1", 0).getEntry();
     private final NetworkTableEntry D_ultraSonic2 = tab.add("Ultrasonic2", 0).getEntry();
     private final NetworkTableEntry D_cobraRaw = tab.add("Cobra Raw", 0).getEntry();
@@ -75,7 +77,8 @@ public class Sensor extends SubsystemBase
 
         // Sensors
         cobra = new Cobra();
-        sharp = new AnalogInput(Constants.SHARP);
+        sharp1 = new AnalogInput(Constants.SHARP1);
+        sharp2 = new AnalogInput(Constants.SHARP2);
         sonic1 = new Ultrasonic(Constants.SONIC_TRIGG1, Constants.SONIC_ECHO1);
         sonic2 = new Ultrasonic(Constants.SONIC_TRIGG2, Constants.SONIC_ECHO2);
         gyro = new AHRS(SPI.Port.kMXP);
@@ -111,8 +114,12 @@ public class Sensor extends SubsystemBase
      * 
      * @return value between 0 - 100 (valid data range is 10cm - 80cm)
      */
-    public double getIRDistance() {
-        return (Math.pow(sharp.getAverageVoltage(), -1.2045) * 27.726);
+    public double getIRDistance1() {
+        return (Math.pow(sharp1.getAverageVoltage(), -1.2045) * 27.726);
+    }
+
+    public double getIRDistance2() {
+        return (Math.pow(sharp2.getAverageVoltage(), -1.2045) * 27.726);
     }
 
     /**
@@ -154,6 +161,10 @@ public class Sensor extends SubsystemBase
         //servoC.set(speed);
     }
 
+    public double getCobraTotal()
+    {
+        return (cobraValue[0]+cobraValue[1]+cobraValue[2]+cobraValue[3]);
+    }
 
     public double offset()
     {
@@ -178,28 +189,30 @@ public class Sensor extends SubsystemBase
          * Updates for outputs to the shuffleboard
          */
         //D_inputDisp.setBoolean(getSwitch());
-        // if( x%2 == 0){
-        //     D_sharpIR.setDouble(getIRDistance());
-        //     D_ultraSonic1.setDouble(getSonicDistance1(true)); //set to true because we want metric
-        //     D_ultraSonic2.setDouble(getSonicDistance2(true));
-        // }
+         if( x%2 == 0){
+             D_sharpIR2.setDouble(getIRDistance2());
+             D_sharpIR1.setDouble(getIRDistance1());
+             D_ultraSonic1.setDouble(getSonicDistance1(true)); //set to true because we want metric
+             D_ultraSonic2.setDouble(getSonicDistance2(true));
+         }
 
-        // else{
-        //     for(int i=0; i<4; i++) {
-        //         cobraValue[i] = getCobraRawValue(i);
-        //     }
-        //     D_cobra1.setDouble(cobraValue[0]);
-        //     D_cobra2.setDouble(cobraValue[1]);
-        //     D_cobra3.setDouble(cobraValue[2]);
-        //     D_cobra4.setDouble(cobraValue[3]);
-        // }
-        // x++;
-        //D_cobraRaw.setDouble(offset()); //Just going to use channel 0 for demo
-        //D_cobraVoltage.setDouble(getCobraVoltage(0));
+         else{
+             D_Compass.setDouble(gyro.getCompassHeading());
+             for(int i=0; i<4; i++) {
+                 cobraValue[i] = getCobraRawValue(i);
+             }
+             D_cobra1.setDouble(cobraValue[0]);
+             D_cobra2.setDouble(cobraValue[1]);
+             D_cobra3.setDouble(cobraValue[2]);
+             D_cobra4.setDouble(cobraValue[3]);
+         }
+         x++;
+        D_cobraRaw.setDouble(offset()); //Just going to use channel 0 for demo
+        D_cobraVoltage.setDouble(getCobraVoltage(0));
 
-        //outDebug11.set(false);
-        //D_globals.setDouble(Globals.distCount);
-        //D_globals.setBoolean(Globals.endFlag);
-        //D_globalstate.setNumber(Globals.cmdState);
+        outDebug11.set(false);
+        D_globals.setDouble(Globals.distCount);
+        D_globals.setBoolean(Globals.endFlag);
+        D_globalstate.setNumber(Globals.cmdState);
     }
 }

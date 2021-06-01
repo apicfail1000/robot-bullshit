@@ -11,10 +11,11 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.OmniDrive;
 
 
-public class Pick extends CommandBase {
+public class Pick extends CommandGroupBase {
 
   public Pick() {
 
+    super();
 
 
         
@@ -24,6 +25,12 @@ public class Pick extends CommandBase {
 
 
 
+  @Override
+  public void addCommands(Command... commands) {
+      parallel(new MoveArmXY(Globals.xTgt, Globals.yTgt, 0.0, 0.0, 0.5),
+      new MoveRobot(0, Globals.zTgt,  0.0, 0.0, 0.5));
+
+  }
 
 
 
